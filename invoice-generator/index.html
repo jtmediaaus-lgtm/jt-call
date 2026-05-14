@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Invoice Generator</title>
+<title>JT Media Aus — Invoices</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
   --bg:#eef0f3;--card:#fff;--ink:#1f2937;--muted:#6b7280;--line:#e5e7eb;
-  --accent:#4f46e5;--accent-d:#4338ca;--ok:#059669;
+  --accent:#4f46e5;--accent-d:#4338ca;
 }
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;-webkit-font-smoothing:antialiased}
 .app{display:flex;flex-direction:column;height:100vh}
@@ -67,32 +67,22 @@ textarea{resize:vertical}
 
 /* preview */
 .preview{overflow-y:auto;padding:24px;background:#dde0e6}
-.inv-doc{background:#fff;max-width:720px;margin:0 auto;padding:46px 44px;box-shadow:0 2px 10px rgba(0,0,0,.14);border-radius:4px;color:#111827}
-.inv-head{display:flex;justify-content:space-between;gap:24px;margin-bottom:30px}
-.inv-logo{max-height:64px;max-width:220px;margin-bottom:8px;display:block}
-.inv-bizname{font-size:22px;font-weight:800;letter-spacing:.3px}
-.inv-bizname-sm{font-size:13px;font-weight:700;margin-bottom:4px}
-.inv-from-meta{font-size:12px;color:#6b7280;line-height:1.6;margin-top:6px}
-.inv-title-block{text-align:right;flex-shrink:0}
-.inv-title{font-size:30px;font-weight:800;letter-spacing:2px;color:#111827;margin-bottom:10px}
-.inv-meta{font-size:12px;border-collapse:collapse;margin-left:auto}
-.inv-meta td{padding:2px 0 2px 16px;text-align:right}
-.inv-meta td:first-child{color:#6b7280;text-transform:uppercase;font-size:10px;letter-spacing:.6px;font-weight:700}
-.inv-billto{margin-bottom:24px}
-.inv-label{font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:#6b7280;font-weight:700;margin-bottom:5px}
-.inv-client-name{font-size:15px;font-weight:700}
-.inv-muted{font-size:12px;color:#6b7280;line-height:1.6;margin-top:2px}
-.inv-items{width:100%;border-collapse:collapse;margin-bottom:18px}
-.inv-items th{font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:#6b7280;font-weight:700;text-align:left;padding:8px 10px;border-bottom:2px solid #111827}
-.inv-items th.num,.inv-items td.num{text-align:right}
-.inv-items td{font-size:13px;padding:10px;border-bottom:1px solid #e5e7eb;vertical-align:top}
-.inv-totals{margin-left:auto;width:260px;margin-bottom:26px}
-.inv-trow{display:flex;justify-content:space-between;font-size:13px;padding:6px 10px}
-.inv-trow.inv-due{border-top:2px solid #111827;font-size:16px;font-weight:800;padding-top:10px;margin-top:4px}
-.inv-pay{background:#f8f9fb;border:1px solid #e5e7eb;border-radius:8px;padding:14px 16px;margin-bottom:18px}
-.inv-pay-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 24px;font-size:12px}
-.inv-pay-grid div span{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:#9ca3af;font-weight:700}
-.inv-notes{font-size:12px;color:#6b7280;line-height:1.6;border-top:1px solid #e5e7eb;padding-top:14px}
+.inv-doc{background:#fff;max-width:760px;margin:0 auto;padding:48px 52px;box-shadow:0 2px 10px rgba(0,0,0,.14);border-radius:4px;color:#000;font-family:Arial,Helvetica,sans-serif}
+.doc-title{text-align:center;font-size:26px;font-weight:700;margin-bottom:6px}
+.biz-block{text-align:right;font-size:12.5px;line-height:1.5;margin-bottom:26px}
+.biz-block .biz-name{font-weight:700;font-size:13.5px}
+.inv-to{font-size:13px;line-height:1.6;margin-bottom:34px}
+.inv-no{font-size:13px;margin-bottom:8px}
+.inv-table{width:100%;border-collapse:collapse;margin-bottom:30px}
+.inv-table th,.inv-table td{border:1px solid #000;padding:9px 12px;font-size:12.5px}
+.inv-table th{font-weight:700;text-align:left}
+.inv-table th.c,.inv-table td.c{text-align:center}
+.inv-table td.desc{text-align:left}
+.inv-table .totals-label{text-align:right;font-weight:700;line-height:1.7;padding:12px}
+.inv-table .totals-amt{text-align:center;font-weight:700;vertical-align:top}
+.pay-sec{margin-bottom:18px}
+.pay-sec .sec-h{font-weight:700;font-size:14px;margin-bottom:6px}
+.pay-sec .sec-b{font-size:13px;line-height:1.6}
 
 /* modal */
 .modal{display:none;position:fixed;inset:0;background:rgba(17,24,39,.55);z-index:50;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto}
@@ -105,10 +95,6 @@ textarea{resize:vertical}
 .modal-foot button{padding:9px 18px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;border:1px solid var(--line);background:#fff;color:var(--ink)}
 .modal-foot .primary{background:var(--accent);border-color:var(--accent);color:#fff}
 .modal-foot .primary:hover{background:var(--accent-d)}
-.logo-row{display:flex;align-items:center;gap:10px}
-.logo-prev{width:120px;height:54px;border:1px dashed var(--line);border-radius:8px;display:flex;align-items:center;justify-content:center;background:#f8f9fb;overflow:hidden;flex-shrink:0}
-.logo-prev img{max-width:100%;max-height:100%}
-.logo-prev span{font-size:11px;color:#9ca3af}
 .preset-row{display:grid;grid-template-columns:1fr 110px 30px;gap:8px;margin-bottom:8px}
 
 /* toast */
@@ -122,19 +108,18 @@ textarea{resize:vertical}
   .app{height:auto}
   .preview{padding:0;background:#fff;overflow:visible}
   .inv-doc{box-shadow:none;margin:0;max-width:none;border-radius:0;padding:0}
-  @page{margin:1.4cm}
+  @page{margin:1.6cm}
 }
 @media(max-width:1100px){
   .workspace,.workspace.no-hist{grid-template-columns:1fr}
-  .preview{display:none}
-  .history-panel{display:none}
+  .preview,.history-panel{display:none}
 }
 </style>
 </head>
 <body>
 <div class="app">
   <div class="topbar">
-    <div class="brand">INVOICES</div>
+    <div class="brand">JT MEDIA AUS — INVOICES</div>
     <div class="actions">
       <button onclick="newInvoice()">New</button>
       <button class="primary" onclick="saveInvoice()">Save</button>
@@ -173,24 +158,32 @@ const LS = {
   set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))
 };
 const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const fmt = n => '$'+(Number(n)||0).toLocaleString('en-AU',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmt = n => {n=Number(n)||0;return '$'+(n%1===0?String(n):n.toFixed(2));};
 const today = () => new Date().toISOString().slice(0,10);
-const addDays = (d,n)=>{const x=new Date(d+'T00:00:00');x.setDate(x.getDate()+n);return x.toISOString().slice(0,10);};
-const fmtDate = s => s?new Date(s+'T00:00:00').toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'}):'';
+const fmtDate = s => {
+  if(!s)return '';
+  const d=new Date(s+'T00:00:00');
+  return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
+};
 const nl2br = s => esc(s).replace(/\n/g,'<br>');
 
-let business = LS.get('vinv_business',{name:'',abn:'',email:'',phone:'',address:'',logo:''});
-let payment  = LS.get('vinv_payment',{accountName:'',bank:'',bsb:'',account:''});
-let settings = LS.get('vinv_settings',{prefix:'INV-',nextNumber:1,dueDays:14,defaultNotes:'Payment due within 14 days of the invoice date. Thank you for your business.'});
-let presets  = LS.get('vinv_presets',[
-  {description:'Wedding videography — full day coverage',unitPrice:2200},
-  {description:'Highlight film (3–5 min edit)',unitPrice:650},
-  {description:'Event coverage — half day (up to 4 hrs)',unitPrice:850},
-  {description:'Promotional / brand video',unitPrice:1500},
-  {description:'Second shooter / additional camera operator',unitPrice:450},
-  {description:'Drone aerial footage',unitPrice:350},
-  {description:'Raw footage delivery',unitPrice:150},
-  {description:'Travel fee',unitPrice:0}
+let business = LS.get('vinv_business',{
+  name:'JT MEDIA AUS',
+  abn:'71 471 928 133',
+  address:'167 Pleasant grove circle\nFalcon\nWA, 6210',
+  phone:'0467 542 200',
+  email:'Jtmedia.aus@gmail.com'
+});
+let payment = LS.get('vinv_payment',{accountName:'Jack Templeman',bsb:'067873',account:'2341 1308'});
+let settings = LS.get('vinv_settings',{
+  docTitle:'TAX INVOICE',
+  nextNumber:9,
+  defaultTerms:'Payment within 14 days from the date of this invoice.'
+});
+let presets = LS.get('vinv_presets',[
+  {description:'Instructional videos',unitPrice:125},
+  {description:'Interview/talking videos',unitPrice:125},
+  {description:'Cinematic/general videos',unitPrice:125}
 ]);
 let invoices = LS.get('vinv_invoices',[]);
 let current = null, isNew = true, draft = null;
@@ -198,21 +191,17 @@ let current = null, isNew = true, draft = null;
 function blankInvoice(){
   return {
     id:Date.now(),
-    number:settings.prefix+String(settings.nextNumber).padStart(4,'0'),
-    issueDate:today(),
-    dueDate:addDays(today(),settings.dueDays),
+    number:String(settings.nextNumber).padStart(3,'0'),
+    date:today(),
     status:'Draft',
-    client:{name:'',business:'',email:'',address:''},
+    to:'',
     items:[{description:'',qty:1,unitPrice:0}],
-    depositPaid:0,
-    notes:settings.defaultNotes
+    terms:settings.defaultTerms
   };
 }
-function totals(inv){
+function invoiceTotal(inv){
   inv = inv||current;
-  const subtotal = inv.items.reduce((s,it)=>s+((it.qty||0)*(it.unitPrice||0)),0);
-  const deposit = inv.depositPaid||0;
-  return {subtotal,deposit,balance:subtotal-deposit};
+  return inv.items.reduce((s,it)=>s+((it.qty||0)*(it.unitPrice||0)),0);
 }
 
 /* ---- actions ---- */
@@ -240,9 +229,8 @@ function duplicateInvoice(id){
   const src=invoices.find(x=>x.id===id);if(!src)return;
   current=JSON.parse(JSON.stringify(src));
   current.id=Date.now();
-  current.number=settings.prefix+String(settings.nextNumber).padStart(4,'0');
-  current.issueDate=today();
-  current.dueDate=addDays(today(),settings.dueDays);
+  current.number=String(settings.nextNumber).padStart(3,'0');
+  current.date=today();
   current.status='Draft';
   isNew=true;renderAll();flash('Duplicated — save to keep it');
 }
@@ -289,7 +277,6 @@ function renderAll(){renderEditor();renderPreview();renderHistory();}
 function renderEditor(){
   const c=current;
   $('editor').innerHTML=`
-    ${!business.name?`<div class="hint">Add your business name, contact and bank details in <button class="link" onclick="openSettings()">Settings</button> — they appear on every invoice.</div>`:''}
     <div class="card">
       <div class="card-title">Invoice details</div>
       <div class="grid2">
@@ -297,21 +284,18 @@ function renderEditor(){
         <label>Status<select onchange="current.status=this.value;renderHistory()">
           ${['Draft','Sent','Paid'].map(s=>`<option ${c.status===s?'selected':''}>${s}</option>`).join('')}
         </select></label>
-        <label>Issue date<input type="date" value="${c.issueDate}" oninput="current.issueDate=this.value;renderPreview()"></label>
-        <label>Due date<input type="date" value="${c.dueDate}" oninput="current.dueDate=this.value;renderPreview()"></label>
+        <label class="span2">Invoice date<input type="date" value="${c.date}" oninput="current.date=this.value;renderPreview()"></label>
       </div>
     </div>
     <div class="card">
       <div class="card-title">Bill to</div>
-      <div class="grid2">
-        <label>Client / contact name<input value="${esc(c.client.name)}" oninput="current.client.name=this.value;renderPreview()"></label>
-        <label>Business name<input value="${esc(c.client.business)}" oninput="current.client.business=this.value;renderPreview()"></label>
-        <label class="span2">Email<input value="${esc(c.client.email)}" oninput="current.client.email=this.value;renderPreview()"></label>
-        <label class="span2">Address<textarea rows="2" oninput="current.client.address=this.value;renderPreview()">${esc(c.client.address)}</textarea></label>
-      </div>
+      <label>To (client / business name)<input value="${esc(c.to)}" oninput="current.to=this.value;renderPreview()" placeholder="e.g. Mandurah Combat Sports Academy"></label>
     </div>
     <div class="card">
       <div class="card-title">Line items</div>
+      <div class="item-row" style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px">
+        <span>Description</span><span>Qty</span><span>Unit price</span><span style="text-align:right">Amount</span><span></span>
+      </div>
       <div id="itemsBox"></div>
       <div class="items-actions">
         <button class="btn-ghost" onclick="addItem()">+ Add line</button>
@@ -322,11 +306,8 @@ function renderEditor(){
       </div>
     </div>
     <div class="card">
-      <div class="card-title">Summary</div>
-      <div class="grid2">
-        <label>Deposit already paid (optional)<input type="number" min="0" step="0.01" value="${c.depositPaid||''}" placeholder="0.00" oninput="current.depositPaid=parseFloat(this.value)||0;renderPreview()"></label>
-      </div>
-      <label class="span2" style="margin-top:12px">Notes / payment terms<textarea rows="3" oninput="current.notes=this.value;renderPreview()">${esc(c.notes)}</textarea></label>
+      <div class="card-title">Payment terms</div>
+      <label>Terms text (appears on the invoice)<textarea rows="2" oninput="current.terms=this.value;renderPreview()">${esc(c.terms)}</textarea></label>
     </div>`;
   renderItems();
 }
@@ -343,85 +324,70 @@ function renderItems(){
 }
 
 function renderPreview(){
-  const c=current,t=totals(),b=business,p=payment;
+  const c=current,b=business,p=payment,total=invoiceTotal();
   const items=c.items.filter(it=>it.description||it.qty||it.unitPrice);
   $('preview').innerHTML=`
     <div class="inv-doc">
-      <div class="inv-head">
-        <div class="inv-from">
-          ${b.logo?`<img class="inv-logo" src="${b.logo}" alt="">`:''}
-          ${b.logo?(b.name?`<div class="inv-bizname-sm">${esc(b.name)}</div>`:''):`<div class="inv-bizname">${esc(b.name)||'Your Business'}</div>`}
-          <div class="inv-from-meta">
-            ${b.abn?`ABN ${esc(b.abn)}<br>`:''}
-            ${b.address?nl2br(b.address)+'<br>':''}
-            ${b.email?esc(b.email)+'<br>':''}
-            ${b.phone?esc(b.phone):''}
-          </div>
-        </div>
-        <div class="inv-title-block">
-          <div class="inv-title">INVOICE</div>
-          <table class="inv-meta">
-            <tr><td>Invoice #</td><td>${esc(c.number)}</td></tr>
-            <tr><td>Issued</td><td>${fmtDate(c.issueDate)}</td></tr>
-            <tr><td>Due</td><td>${fmtDate(c.dueDate)}</td></tr>
-          </table>
-        </div>
+      <div class="doc-title">${esc(settings.docTitle)}</div>
+      <div class="biz-block">
+        <div class="biz-name">${esc(b.name)}</div>
+        ${b.abn?`ABN: ${esc(b.abn)}<br>`:''}
+        ${b.address?nl2br(b.address)+'<br>':''}
+        ${b.phone?esc(b.phone)+'<br>':''}
+        ${b.email?esc(b.email):''}
       </div>
-      <div class="inv-billto">
-        <div class="inv-label">Bill to</div>
-        <div class="inv-client-name">${esc(c.client.business||c.client.name)||'Client'}</div>
-        ${c.client.business&&c.client.name?`<div class="inv-muted">${esc(c.client.name)}</div>`:''}
-        ${c.client.address?`<div class="inv-muted">${nl2br(c.client.address)}</div>`:''}
-        ${c.client.email?`<div class="inv-muted">${esc(c.client.email)}</div>`:''}
+      <div class="inv-to">
+        ${fmtDate(c.date)}<br>
+        To: ${esc(c.to)||'&nbsp;'}
       </div>
-      <table class="inv-items">
-        <thead><tr><th>Description</th><th class="num">Qty</th><th class="num">Unit price</th><th class="num">Amount</th></tr></thead>
+      <div class="inv-no">Invoice &nbsp;${esc(c.number)}</div>
+      <table class="inv-table">
+        <thead>
+          <tr><th>Item description</th><th class="c">Quantity</th><th class="c">Unit Price</th><th class="c">Amount</th></tr>
+        </thead>
         <tbody>
           ${items.length?items.map(it=>`<tr>
-            <td>${esc(it.description)}</td>
-            <td class="num">${it.qty||0}</td>
-            <td class="num">${fmt(it.unitPrice)}</td>
-            <td class="num">${fmt((it.qty||0)*(it.unitPrice||0))}</td>
-          </tr>`).join(''):`<tr><td colspan="4" style="color:#9ca3af">No line items yet</td></tr>`}
+            <td class="desc">${esc(it.description)}</td>
+            <td class="c">${it.qty||0}</td>
+            <td class="c">${fmt(it.unitPrice)}</td>
+            <td class="c">${fmt((it.qty||0)*(it.unitPrice||0))}</td>
+          </tr>`).join(''):`<tr><td class="desc" colspan="4" style="color:#999">No line items yet</td></tr>`}
+          <tr>
+            <td class="totals-label" colspan="3">Total amount payable<br>No GST has been charged</td>
+            <td class="totals-amt">${fmt(total)}</td>
+          </tr>
         </tbody>
       </table>
-      <div class="inv-totals">
-        <div class="inv-trow"><span>Subtotal</span><span>${fmt(t.subtotal)}</span></div>
-        ${t.deposit?`<div class="inv-trow"><span>Less deposit paid</span><span>&minus;${fmt(t.deposit)}</span></div>`:''}
-        <div class="inv-trow inv-due"><span>${t.deposit?'Balance due':'Total due'}</span><span>${fmt(t.balance)}</span></div>
+      <div class="pay-sec">
+        <div class="sec-h">Payment details</div>
+        <div class="sec-b">Pay by bank transfer to:<br>
+          Name: ${esc(p.accountName)}<br>
+          BSB: ${esc(p.bsb)}<br>
+          Acc #: ${esc(p.account)}</div>
       </div>
-      ${(p.accountName||p.bsb||p.account||p.bank)?`
-      <div class="inv-pay">
-        <div class="inv-label">Payment details</div>
-        <div class="inv-pay-grid">
-          ${p.bank?`<div><span>Bank</span>${esc(p.bank)}</div>`:''}
-          ${p.accountName?`<div><span>Account name</span>${esc(p.accountName)}</div>`:''}
-          ${p.bsb?`<div><span>BSB</span>${esc(p.bsb)}</div>`:''}
-          ${p.account?`<div><span>Account number</span>${esc(p.account)}</div>`:''}
-        </div>
+      ${c.terms?`<div class="pay-sec">
+        <div class="sec-h">Payment terms</div>
+        <div class="sec-b">${nl2br(c.terms)}</div>
       </div>`:''}
-      ${c.notes?`<div class="inv-notes">${nl2br(c.notes)}</div>`:''}
     </div>`;
 }
 
 function renderHistory(){
   const box=$('historyList');
   if(!invoices.length){box.innerHTML='<div class="empty">No saved invoices yet. Fill one in and hit Save.</div>';return;}
-  box.innerHTML=invoices.map(inv=>{
-    const t=totals(inv);
-    return `<div class="hist-item ${current&&current.id===inv.id?'active':''}">
+  box.innerHTML=invoices.map(inv=>`
+    <div class="hist-item ${current&&current.id===inv.id?'active':''}">
       <div class="hist-main" onclick="loadInvoice(${inv.id})">
-        <div class="hist-top"><span class="hist-num">${esc(inv.number)}</span><span class="badge b-${esc(inv.status.toLowerCase())}">${esc(inv.status)}</span></div>
-        <div class="hist-client">${esc(inv.client.business||inv.client.name)||'No client'}</div>
-        <div class="hist-meta">${fmtDate(inv.issueDate)} &middot; ${fmt(t.balance)}</div>
+        <div class="hist-top"><span class="hist-num">Invoice ${esc(inv.number)}</span><span class="badge b-${esc(inv.status.toLowerCase())}">${esc(inv.status)}</span></div>
+        <div class="hist-client">${esc(inv.to)||'No client'}</div>
+        <div class="hist-meta">${fmtDate(inv.date)} &middot; ${fmt(invoiceTotal(inv))}</div>
       </div>
       <div class="hist-actions">
         ${inv.status!=='Paid'?`<button onclick="markPaid(${inv.id})" title="Mark paid">&#10003;</button>`:''}
         <button onclick="duplicateInvoice(${inv.id})" title="Duplicate">&#8862;</button>
         <button onclick="deleteInvoice(${inv.id})" title="Delete">&#128465;</button>
       </div>
-    </div>`;
-  }).join('');
+    </div>`).join('');
 }
 
 /* ---- settings ---- */
@@ -445,43 +411,28 @@ function saveSettings(){
   renderEditor();renderPreview();
   flash('Settings saved');
 }
-function onLogo(input){
-  const f=input.files[0];if(!f)return;
-  const r=new FileReader();
-  r.onload=e=>{draft.business.logo=e.target.result;renderSettings();};
-  r.readAsDataURL(f);
-}
 function renderSettings(){
   const d=draft;
   $('settingsBody').innerHTML=`
     <div class="card-title">Your business</div>
     <div class="grid2">
       <label>Business name<input value="${esc(d.business.name)}" oninput="draft.business.name=this.value"></label>
-      <label>ABN (optional)<input value="${esc(d.business.abn)}" oninput="draft.business.abn=this.value"></label>
-      <label>Email<input value="${esc(d.business.email)}" oninput="draft.business.email=this.value"></label>
+      <label>ABN<input value="${esc(d.business.abn)}" oninput="draft.business.abn=this.value"></label>
       <label>Phone<input value="${esc(d.business.phone)}" oninput="draft.business.phone=this.value"></label>
-      <label class="span2">Address<textarea rows="2" oninput="draft.business.address=this.value">${esc(d.business.address)}</textarea></label>
+      <label>Email<input value="${esc(d.business.email)}" oninput="draft.business.email=this.value"></label>
+      <label class="span2">Address<textarea rows="3" oninput="draft.business.address=this.value">${esc(d.business.address)}</textarea></label>
     </div>
-    <label class="span2">Logo
-      <div class="logo-row">
-        <div class="logo-prev">${d.business.logo?`<img src="${d.business.logo}" alt="">`:'<span>No logo</span>'}</div>
-        <input type="file" accept="image/*" onchange="onLogo(this)" style="border:none;padding:0">
-        ${d.business.logo?`<button class="btn-ghost" onclick="draft.business.logo='';renderSettings()">Remove</button>`:''}
-      </div>
-    </label>
     <div class="card-title" style="margin-top:8px">Payment details</div>
     <div class="grid2">
       <label>Account name<input value="${esc(d.payment.accountName)}" oninput="draft.payment.accountName=this.value"></label>
-      <label>Bank<input value="${esc(d.payment.bank)}" oninput="draft.payment.bank=this.value"></label>
       <label>BSB<input value="${esc(d.payment.bsb)}" oninput="draft.payment.bsb=this.value"></label>
-      <label>Account number<input value="${esc(d.payment.account)}" oninput="draft.payment.account=this.value"></label>
+      <label class="span2">Account number<input value="${esc(d.payment.account)}" oninput="draft.payment.account=this.value"></label>
     </div>
     <div class="card-title" style="margin-top:8px">Defaults</div>
     <div class="grid2">
-      <label>Invoice number prefix<input value="${esc(d.settings.prefix)}" oninput="draft.settings.prefix=this.value"></label>
+      <label>Document title<input value="${esc(d.settings.docTitle)}" oninput="draft.settings.docTitle=this.value"></label>
       <label>Next invoice number<input type="number" min="1" value="${d.settings.nextNumber}" oninput="draft.settings.nextNumber=parseInt(this.value)||1"></label>
-      <label>Payment due (days)<input type="number" min="0" value="${d.settings.dueDays}" oninput="draft.settings.dueDays=parseInt(this.value)||0"></label>
-      <label class="span2">Default notes / terms<textarea rows="2" oninput="draft.settings.defaultNotes=this.value">${esc(d.settings.defaultNotes)}</textarea></label>
+      <label class="span2">Default payment terms<textarea rows="2" oninput="draft.settings.defaultTerms=this.value">${esc(d.settings.defaultTerms)}</textarea></label>
     </div>
     <div class="card-title" style="margin-top:8px">Saved services <span style="text-transform:none;font-weight:400">— quick-add presets for line items</span></div>
     <div id="presetEdit">${d.presets.map((p,i)=>`
