@@ -96,6 +96,12 @@ textarea{resize:vertical}
 .modal-foot .primary{background:var(--accent);border-color:var(--accent);color:#fff}
 .modal-foot .primary:hover{background:var(--accent-d)}
 .preset-row{display:grid;grid-template-columns:1fr 110px 30px;gap:8px;margin-bottom:8px}
+.client-card{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:8px}
+.client-name{font-weight:700;font-size:14px}
+.client-tmpl{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.5}
+.client-acts{display:flex;gap:6px;flex-shrink:0}
+.client-acts button{border:1px solid var(--line);background:#fff;border-radius:7px;padding:6px 12px;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit;color:var(--ink)}
+.client-acts button:hover{background:#f3f4f6}
 
 /* toast */
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#111827;color:#fff;padding:10px 18px;border-radius:10px;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:all .2s;z-index:60}
@@ -125,6 +131,7 @@ textarea{resize:vertical}
       <button class="primary" onclick="saveInvoice()">Save</button>
       <button onclick="window.print()">Print / PDF</button>
       <button onclick="toggleHistory()">History</button>
+      <button onclick="openClients()">Clients</button>
       <button onclick="openSettings()">Settings</button>
     </div>
   </div>
@@ -145,6 +152,16 @@ textarea{resize:vertical}
     <div class="modal-foot">
       <button onclick="closeSettings()">Cancel</button>
       <button class="primary" onclick="saveSettings()">Save settings</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="clientsModal">
+  <div class="modal-box">
+    <div class="modal-head"><span>Clients &amp; their regular orders</span><button class="x" onclick="closeClients()">&times;</button></div>
+    <div class="modal-body" id="clientsBody"></div>
+    <div class="modal-foot">
+      <button class="primary" onclick="closeClients()">Done</button>
     </div>
   </div>
 </div>
@@ -185,6 +202,7 @@ let presets = LS.get('vinv_presets',[
   {description:'Interview/talking videos',unitPrice:125},
   {description:'Cinematic/general videos',unitPrice:125}
 ]);
+let clients = LS.get('vinv_clients',[]);
 let invoices = LS.get('vinv_invoices',[]);
 let current = null, isNew = true, draft = null;
 
@@ -195,6 +213,7 @@ function blankInvoice(){
     date:today(),
     status:'Draft',
     to:'',
+    clientId:null,
     items:[{description:'',qty:1,unitPrice:0}],
     terms:settings.defaultTerms
   };
@@ -253,6 +272,70 @@ function toggleHistory(){
   $('workspace').classList.toggle('no-hist');
 }
 
+/* ---- clients (per-client "regular order" templates) ---- */
+function pickClient(id){
+  if(!id){current.clientId=null;renderEditor();renderPreview();return;}
+  const cl=clients.find(x=>String(x.id)===String(id));
+  if(!cl)return;
+  current.clientId=cl.id;
+  current.to=cl.name;
+  const hasItems=current.items.some(it=>it.description||it.unitPrice);
+  if(cl.template&&cl.template.length){
+    if(!hasItems||confirm('Load '+cl.name+'’s regular order? This replaces the current line items.')){
+      current.items=cl.template.map(it=>Object.assign({},it));
+    }
+  }
+  renderEditor();renderPreview();
+}
+function saveClientTemplate(){
+  const items=current.items.filter(it=>it.description.trim()!=='');
+  if(!items.length){alert('Add some line items first.');return;}
+  if(current.clientId){
+    const cl=clients.find(x=>x.id===current.clientId);
+    if(cl){cl.name=current.to||cl.name;cl.template=items.map(it=>Object.assign({},it));}
+  }else{
+    const name=(current.to||'').trim();
+    if(!name){alert('Enter the client name in the "To" field first.');return;}
+    const cl={id:Date.now(),name:name,template:items.map(it=>Object.assign({},it))};
+    clients.push(cl);
+    current.clientId=cl.id;
+  }
+  LS.set('vinv_clients',clients);
+  renderEditor();
+  flash('Client order saved');
+}
+function openClients(){renderClients();$('clientsModal').classList.add('open');}
+function closeClients(){$('clientsModal').classList.remove('open');}
+function useClient(id){closeClients();pickClient(id);}
+function deleteClient(id){
+  if(!confirm('Delete this client and their saved order?'))return;
+  clients=clients.filter(x=>x.id!==id);
+  LS.set('vinv_clients',clients);
+  if(current&&current.clientId===id){current.clientId=null;renderEditor();}
+  renderClients();
+}
+function renderClients(){
+  const body=$('clientsBody');
+  if(!clients.length){
+    body.innerHTML='<div class="empty">No saved clients yet. Build a set of line items for a client, then use the "Save line items as a client order" button in the Bill to section. Next time you invoice them, pick them from the Client dropdown and the line items fill in automatically.</div>';
+    return;
+  }
+  body.innerHTML=clients.map(cl=>{
+    const total=cl.template.reduce((s,it)=>s+((it.qty||0)*(it.unitPrice||0)),0);
+    const summary=cl.template.map(it=>`${it.qty}× ${esc(it.description)}`).join(', ');
+    return `<div class="client-card">
+      <div class="client-info">
+        <div class="client-name">${esc(cl.name)}</div>
+        <div class="client-tmpl">${summary||'No items'} &middot; ${fmt(total)}</div>
+      </div>
+      <div class="client-acts">
+        <button onclick="useClient(${cl.id})">Use</button>
+        <button onclick="deleteClient(${cl.id})">Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 /* ---- line items ---- */
 function refreshLine(i){
   const it=current.items[i],el=$('lineamt'+i);
@@ -289,7 +372,14 @@ function renderEditor(){
     </div>
     <div class="card">
       <div class="card-title">Bill to</div>
-      <label>To (client / business name)<input value="${esc(c.to)}" oninput="current.to=this.value;renderPreview()" placeholder="e.g. Mandurah Combat Sports Academy"></label>
+      <div class="grid2">
+        <label>Client<select onchange="pickClient(this.value)">
+          <option value="">— New / one-off client —</option>
+          ${clients.map(cl=>`<option value="${cl.id}" ${c.clientId===cl.id?'selected':''}>${esc(cl.name)}</option>`).join('')}
+        </select></label>
+        <label>To (name on invoice)<input value="${esc(c.to)}" oninput="current.to=this.value;renderPreview()" placeholder="e.g. Mandurah Combat Sports Academy"></label>
+      </div>
+      <button class="btn-ghost" style="margin-top:10px" onclick="saveClientTemplate()">${c.clientId?'Update this client&rsquo;s regular order':'Save line items as a client&rsquo;s regular order'}</button>
     </div>
     <div class="card">
       <div class="card-title">Line items</div>
