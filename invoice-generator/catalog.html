@@ -319,8 +319,8 @@ function renderGrid(){
   $('grid').innerHTML = list.map((p,idx)=>{
     const t = total(p);
     const itemSummary = p.items.map(i=>`<div class="ln"><span>${i.qty}× ${esc(i.description)}</span><span>${fmt(i.qty*i.unitPrice)}</span></div>`).join('');
-    const idx = PAST.indexOf(p);
-    return `<div class="inv-card" role="button" tabindex="0" aria-label="Open invoice for ${esc(p.client)}, ${fmtDate(p.date,p.dateApprox)}, total ${fmt(t)}" onclick="openView(${idx})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openView(${idx})}">
+    const ix = PAST.indexOf(p);
+    return `<div class="inv-card" role="button" tabindex="0" aria-label="Open invoice for ${esc(p.client)}, ${fmtDate(p.date,p.dateApprox)}, total ${fmt(t)}" onclick="openView(${ix})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openView(${ix})}">
       <div class="top">
         <div>
           <div class="client">${esc(p.client)}</div>
