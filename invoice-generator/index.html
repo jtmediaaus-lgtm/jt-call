@@ -177,7 +177,13 @@ const LS = {
 };
 const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt = n => {n=Number(n)||0;return '$'+(n%1===0?String(n):n.toFixed(2));};
-const today = () => new Date().toISOString().slice(0,10);
+const today = () => {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+};
 const fmtDate = s => {
   if(!s)return '';
   const d=new Date(s+'T00:00:00');
