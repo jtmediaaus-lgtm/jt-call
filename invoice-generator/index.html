@@ -148,9 +148,9 @@ textarea{resize:vertical}
   </div>
 </div>
 
-<div class="modal" id="settingsModal">
+<div class="modal" id="settingsModal" onclick="if(event.target===this)closeSettings()">
   <div class="modal-box">
-    <div class="modal-head"><span>Settings</span><button class="x" onclick="closeSettings()">&times;</button></div>
+    <div class="modal-head"><span>Settings</span><button class="x" onclick="closeSettings()" aria-label="Close">&times;</button></div>
     <div class="modal-body" id="settingsBody"></div>
     <div class="modal-foot">
       <button onclick="closeSettings()">Cancel</button>
@@ -159,9 +159,9 @@ textarea{resize:vertical}
   </div>
 </div>
 
-<div class="modal" id="clientsModal">
+<div class="modal" id="clientsModal" onclick="if(event.target===this)closeClients()">
   <div class="modal-box">
-    <div class="modal-head"><span>Clients &amp; their regular orders</span><button class="x" onclick="closeClients()">&times;</button></div>
+    <div class="modal-head"><span>Clients &amp; their regular orders</span><button class="x" onclick="closeClients()" aria-label="Close">&times;</button></div>
     <div class="modal-body" id="clientsBody"></div>
     <div class="modal-foot">
       <button class="primary" onclick="closeClients()">Done</button>
@@ -627,6 +627,12 @@ function flash(msg){
   const t=$('toast');t.textContent=msg;t.classList.add('show');
   clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1800);
 }
+
+document.addEventListener('keydown', e => {
+  if(e.key !== 'Escape') return;
+  if($('settingsModal').classList.contains('open')) closeSettings();
+  else if($('clientsModal').classList.contains('open')) closeClients();
+});
 
 /* ---- init ---- */
 current=blankInvoice();isNew=true;
