@@ -251,6 +251,16 @@ function refreshDirty(){
   const btn = $('saveBtn');
   if(btn) btn.classList.toggle('dirty', isDirty());
 }
+function updateTitle(){
+  const parts = ['JT Invoice'];
+  if(current){
+    const num = (current.number||'').trim();
+    const to = (current.to||'').trim();
+    const label = [num && 'Invoice '+num, to].filter(Boolean).join(' · ');
+    if(label) parts.unshift(label);
+  }
+  document.title = parts.join(' — ');
+}
 
 function blankInvoice(){
   return {
@@ -476,6 +486,7 @@ function renderItems(){
 function renderPreview(){
   const c=current,b=business,p=payment,total=invoiceTotal();
   const items=c.items.filter(it=>it.description||it.qty||it.unitPrice);
+  updateTitle();
   $('preview').innerHTML=`
     <div class="inv-doc">
       <div class="doc-title">${esc(settings.docTitle)}</div>
