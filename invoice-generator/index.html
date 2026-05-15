@@ -121,8 +121,10 @@ textarea{resize:vertical}
   @page{margin:1.6cm}
 }
 @media(max-width:1100px){
-  .workspace,.workspace.no-hist{grid-template-columns:1fr}
-  .preview,.history-panel{display:none}
+  .workspace,.workspace.no-hist{display:flex;flex-direction:column;overflow-y:auto}
+  .history-panel{display:none}
+  .editor,.preview{overflow:visible}
+  .preview{padding:16px;border-top:1px solid var(--line)}
 }
 @media(max-width:720px){
   .topbar{flex-wrap:wrap;gap:8px;padding:10px 14px}
