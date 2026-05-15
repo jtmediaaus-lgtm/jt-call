@@ -46,8 +46,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
 /* invoice grid */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
-.inv-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 18px 16px;display:flex;flex-direction:column;gap:10px;cursor:pointer;transition:border-color .1s,box-shadow .1s,transform .1s}
+.inv-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 18px 16px;display:flex;flex-direction:column;gap:10px;cursor:pointer;transition:border-color .1s,box-shadow .1s,transform .1s;text-align:left;font-family:inherit;color:inherit;font-size:inherit;width:100%}
 .inv-card:hover{border-color:var(--accent);box-shadow:0 4px 14px rgba(79,70,229,.10);transform:translateY(-1px)}
+.inv-card:focus-visible{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px rgba(79,70,229,.25),0 4px 14px rgba(79,70,229,.10);transform:translateY(-1px)}
 .inv-card .top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
 .inv-card .client{font-weight:700;font-size:15px;line-height:1.3;color:var(--ink)}
 .inv-card .when{font-size:11.5px;color:var(--muted);margin-top:3px}
@@ -318,7 +319,8 @@ function renderGrid(){
   $('grid').innerHTML = list.map((p,idx)=>{
     const t = total(p);
     const itemSummary = p.items.map(i=>`<div class="ln"><span>${i.qty}× ${esc(i.description)}</span><span>${fmt(i.qty*i.unitPrice)}</span></div>`).join('');
-    return `<div class="inv-card" onclick="openView(${PAST.indexOf(p)})">
+    const idx = PAST.indexOf(p);
+    return `<div class="inv-card" role="button" tabindex="0" aria-label="Open invoice for ${esc(p.client)}, ${fmtDate(p.date,p.dateApprox)}, total ${fmt(t)}" onclick="openView(${idx})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openView(${idx})}">
       <div class="top">
         <div>
           <div class="client">${esc(p.client)}</div>
