@@ -661,9 +661,16 @@ function flash(msg){
 }
 
 document.addEventListener('keydown', e => {
-  if(e.key !== 'Escape') return;
-  if($('settingsModal').classList.contains('open')) closeSettings();
-  else if($('clientsModal').classList.contains('open')) closeClients();
+  if(e.key === 'Escape'){
+    if($('settingsModal').classList.contains('open')){ closeSettings(); return; }
+    if($('clientsModal').classList.contains('open')){ closeClients(); return; }
+    return;
+  }
+  if((e.metaKey || e.ctrlKey) && (e.key === 's' || e.key === 'S')){
+    e.preventDefault();
+    if($('settingsModal').classList.contains('open')) saveSettings();
+    else saveInvoice();
+  }
 });
 
 document.addEventListener('input', e => {
