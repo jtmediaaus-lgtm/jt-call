@@ -1,5 +1,13 @@
 {
   "buildCommand": "echo 'No build needed'",
   "outputDirectory": ".",
-  "public": true
+  "public": true,
+  "cleanUrls": true,
+  "redirects": [
+    {"source": "/", "destination": "/invoice-generator/catalog.html", "permanent": false},
+    {"source": "/catalog", "destination": "/invoice-generator/catalog.html", "permanent": false},
+    {"source": "/invoices", "destination": "/invoice-generator/catalog.html", "permanent": false},
+    {"source": "/new", "destination": "/invoice-generator/", "permanent": false},
+    {"source": "/generator", "destination": "/invoice-generator/", "permanent": false}
+  ]
 }

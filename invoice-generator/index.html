@@ -125,8 +125,9 @@ textarea{resize:vertical}
 <body>
 <div class="app">
   <div class="topbar">
-    <div class="brand">JT MEDIA AUS — INVOICES</div>
+    <div class="brand">JT MEDIA AUS <span style="opacity:.55;font-weight:500">· Invoices</span></div>
     <div class="actions">
+      <a href="catalog.html" style="background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.15);padding:8px 14px;border-radius:8px;font-size:13px;font-weight:500;text-decoration:none">Catalog</a>
       <button onclick="newInvoice()">New</button>
       <button class="primary" onclick="saveInvoice()">Save</button>
       <button onclick="window.print()">Print / PDF</button>
@@ -541,6 +542,21 @@ function flash(msg){
 
 /* ---- init ---- */
 current=blankInvoice();isNew=true;
+try{
+  const params = new URLSearchParams(location.search);
+  if(params.get('seed')){
+    const raw = sessionStorage.getItem('vinv_seed');
+    if(raw){
+      const seed = JSON.parse(raw);
+      if(seed.to) current.to = seed.to;
+      if(Array.isArray(seed.items) && seed.items.length){
+        current.items = seed.items.map(it=>({description:it.description||'',qty:Number(it.qty)||1,unitPrice:Number(it.unitPrice)||0}));
+      }
+      sessionStorage.removeItem('vinv_seed');
+      history.replaceState({}, '', location.pathname);
+    }
+  }
+}catch(e){}
 renderAll();
 </script>
 </body>
