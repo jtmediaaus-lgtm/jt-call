@@ -59,6 +59,8 @@ textarea{resize:vertical}
 .it-del{border:1px solid var(--line);background:#fff;border-radius:7px;cursor:pointer;color:var(--muted);font-size:16px;line-height:1;height:34px}
 .it-del:hover{background:#fee2e2;color:#dc2626;border-color:#fecaca}
 .items-actions{display:flex;gap:8px;margin-top:4px}
+.running-total{display:flex;justify-content:space-between;align-items:baseline;margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:700}
+.running-total .amt{font-size:18px;font-weight:700;letter-spacing:-.2px;color:var(--ink);text-transform:none}
 .btn-ghost{border:1px dashed var(--line);background:#fff;color:var(--accent);border-radius:8px;padding:8px 12px;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit}
 .btn-ghost:hover{border-color:var(--accent);background:#f5f5ff}
 .preset-select{flex:1;color:var(--accent);font-weight:600;border-style:dashed;cursor:pointer}
@@ -371,6 +373,11 @@ function renderClients(){
 function refreshLine(i){
   const it=current.items[i],el=$('lineamt'+i);
   if(el)el.textContent=fmt((it.qty||0)*(it.unitPrice||0));
+  refreshRunningTotal();
+}
+function refreshRunningTotal(){
+  const el=$('runningTotal');
+  if(el)el.textContent=fmt(invoiceTotal());
 }
 function addItem(){current.items.push({description:'',qty:1,unitPrice:0});renderItems();renderPreview();}
 function removeItem(i){
@@ -425,6 +432,7 @@ function renderEditor(){
           ${presets.map((p,i)=>`<option value="${i}">${esc(p.description)} — ${fmt(p.unitPrice)}</option>`).join('')}
         </select>
       </div>
+      <div class="running-total"><span>Running total</span><span class="amt" id="runningTotal">${fmt(invoiceTotal())}</span></div>
     </div>
     <div class="card">
       <div class="card-title">Payment terms</div>
