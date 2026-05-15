@@ -229,8 +229,10 @@ const PAST = [
   }
 ];
 
-/* business identity — matches the generator's defaults */
-const BIZ = {
+/* business identity — pulled live from the generator's localStorage so reprints
+   pick up whatever bank details / contact info you've set there. Hardcoded
+   values are fallbacks when nothing's saved yet. */
+const BIZ_DEFAULTS = {
   name:'JT Media Aus',
   abn:'71 471 928 133',
   phone:'0413 023 219',
@@ -239,6 +241,20 @@ const BIZ = {
   bsb:'086 245',
   acc:'87 1428 196'
 };
+function readBiz(){
+  let biz = {}, pay = {};
+  try{ biz = JSON.parse(localStorage.getItem('vinv_business')||'null') || {}; }catch(_){}
+  try{ pay = JSON.parse(localStorage.getItem('vinv_payment')||'null') || {}; }catch(_){}
+  return {
+    name:  biz.name  || BIZ_DEFAULTS.name,
+    abn:   biz.abn   || BIZ_DEFAULTS.abn,
+    phone: biz.phone || BIZ_DEFAULTS.phone,
+    email: biz.email || BIZ_DEFAULTS.email,
+    payee: pay.accountName || BIZ_DEFAULTS.payee,
+    bsb:   pay.bsb         || BIZ_DEFAULTS.bsb,
+    acc:   pay.account     || BIZ_DEFAULTS.acc
+  };
+}
 const DEFAULT_TERMS = 'Payment within 14 days from the date of this invoice. Pay via bank transfer to the account above.';
 
 /* ---- utils ---- */
@@ -342,6 +358,7 @@ let viewing = null;
 function openView(idx){
   viewing = PAST[idx];
   const p = viewing;
+  const BIZ = readBiz();
   $('viewTitle').textContent = p.client + ' · ' + fmtDate(p.date,p.dateApprox);
   const t = total(p);
   const toBlock = (p.toLines||[]).map(l=>`<div>${esc(l)}</div>`).join('');
