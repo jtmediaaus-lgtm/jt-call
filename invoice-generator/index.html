@@ -212,6 +212,22 @@ let presets = LS.get('vinv_presets',[
 let clients = LS.get('vinv_clients',[]);
 let invoices = LS.get('vinv_invoices',[]);
 let current = null, isNew = true, draft = null;
+let savedSnapshot = '';
+function snapshotSaved(){ savedSnapshot = current ? JSON.stringify(current) : ''; }
+function hasContent(inv){
+  if(!inv) return false;
+  if((inv.to||'').trim()) return true;
+  return inv.items.some(it => (it.description||'').trim() || (it.qty && it.qty!==1) || (Number(it.unitPrice)||0)>0);
+}
+function isDirty(){
+  if(!current) return false;
+  if(isNew) return hasContent(current);
+  return JSON.stringify(current) !== savedSnapshot;
+}
+function confirmDiscard(action){
+  if(!isDirty()) return true;
+  return confirm('You have unsaved changes on this invoice.\n\n' + (action||'Continue') + '?');
+}
 
 function blankInvoice(){
   return {
@@ -231,7 +247,10 @@ function invoiceTotal(inv){
 }
 
 /* ---- actions ---- */
-function newInvoice(){current=blankInvoice();isNew=true;renderAll();flash('New invoice');}
+function newInvoice(){
+  if(!confirmDiscard('Start a new invoice anyway')) return;
+  current=blankInvoice();isNew=true;snapshotSaved();renderAll();flash('New invoice');
+}
 function saveInvoice(){
   if(!current)return;
   if(isNew){
@@ -244,14 +263,17 @@ function saveInvoice(){
     if(i>=0)invoices[i]=current;else invoices.unshift(current);
   }
   LS.set('vinv_invoices',invoices);
+  snapshotSaved();
   renderHistory();
   flash('Saved');
 }
 function loadInvoice(id){
+  if(!confirmDiscard('Load another invoice anyway')) return;
   const inv=invoices.find(x=>x.id===id);if(!inv)return;
-  current=JSON.parse(JSON.stringify(inv));isNew=false;renderAll();
+  current=JSON.parse(JSON.stringify(inv));isNew=false;snapshotSaved();renderAll();
 }
 function duplicateInvoice(id){
+  if(!confirmDiscard('Duplicate anyway')) return;
   const src=invoices.find(x=>x.id===id);if(!src)return;
   current=JSON.parse(JSON.stringify(src));
   current.id=Date.now();
@@ -264,7 +286,9 @@ function deleteInvoice(id){
   if(!confirm('Delete this invoice? This cannot be undone.'))return;
   invoices=invoices.filter(x=>x.id!==id);
   LS.set('vinv_invoices',invoices);
-  if(current&&current.id===id)newInvoice();else renderHistory();
+  if(current&&current.id===id){
+    current=blankInvoice();isNew=true;snapshotSaved();renderAll();
+  }else renderHistory();
 }
 function markPaid(id){
   const inv=invoices.find(x=>x.id===id);if(!inv)return;
