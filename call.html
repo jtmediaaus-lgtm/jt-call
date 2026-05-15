@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JT/CALL</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0a0a0a;
+  --surface:#141414;
+  --surface-hover:#1f1f1f;
+  --border:#2a2a2a;
+  --text:#f5f5f5;
+  --text-secondary:#9ca3af;
+  --accent:#c8102e;
+  --accent-light:#ff6b7a;
+  --green:#34d399;
+  --yellow:#fbbf24;
+  --blue:#60a5fa;
+}
+* {margin:0;padding:0;box-sizing:border-box}
+body {
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Inter',-apple-system,system-ui,sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+.screen {display:none;min-height:100vh;flex-direction:column}
+.screen.active {display:flex}
+#screen-input {background:var(--bg);background-image:radial-gradient(ellipse at 80% 0%,rgba(200,16,46,0.04) 0%,transparent 60%)}
+.input-header {padding:28px 44px 20px;border-bottom:1px solid var(--border);display:flex;align-items:baseline;justify-content:space-between}
+.wordmark {font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--text);letter-spacing:2px}
+.wordmark span {color:var(--accent)}
+.header-right {display:flex;align-items:center;gap:14px}
+.api-dot {width:8px;height:8px;border-radius:50%;background:#555;flex-shrink:0;margin-top:2px}
+.api-dot.ok {background:var(--green);box-shadow:0 0 12px rgba(52,211,153,0.4)}
+.api-label {font-size:11px;letter-spacing:1px;color:var(--text-secondary);text-transform:uppercase;font-weight:500}
+.settings-btn {background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text-secondary);font-size:12px;padding:8px 14px;cursor:pointer;letter-spacing:0.5px;text-transform:uppercase;font-family:inherit;border-radius:10px;transition:all 0.2s;font-weight:500}
+.settings-btn:hover {background:rgba(255,255,255,0.08);border-color:var(--text-secondary);color:var(--text)}
+.input-body {flex:1;display:grid;grid-template-columns:1fr 280px;gap:0}
+.input-main {padding:32px 44px;display:flex;flex-direction:column;gap:24px}
+.field-label {font-size:12px;letter-spacing:0.5px;text-transform:uppercase;color:var(--text-secondary);margin-bottom:8px;display:block;font-weight:600}
+.client-row {display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.field-input {background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:inherit;font-size:14px;padding:12px 14px;border-radius:12px;width:100%;outline:none;transition:all 0.15s}
+.field-input:hover {border-color:#3a3a3a}
+.field-input:focus {border-color:var(--accent);background:rgba(200,16,46,0.06);box-shadow:0 0 0 3px rgba(200,16,46,0.1)}
+.field-input::placeholder {color:var(--text-secondary);opacity:0.5}
+.situation-wrap {flex:1;display:flex;flex-direction:column}
+.situation-textarea {background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:inherit;font-size:15px;line-height:1.6;padding:14px;border-radius:12px;resize:none;flex:1;min-height:240px;outline:none;transition:all 0.15s}
+.situation-textarea:hover {border-color:#3a3a3a}
+.situation-textarea:focus {border-color:var(--accent);background:rgba(200,16,46,0.06);box-shadow:0 0 0 3px rgba(200,16,46,0.1)}
+.situation-textarea::placeholder {color:var(--text-secondary);opacity:0.5}
+.numbers-row {display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.number-field {position:relative}
+.number-prefix {position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-secondary);font-size:13px;pointer-events:none;font-weight:500}
+.field-input.has-prefix {padding-left:28px}
+.generate-btn {background:var(--accent);color:#fff;border:none;font-family:inherit;font-size:16px;letter-spacing:0.5px;font-weight:600;padding:14px 28px;cursor:pointer;border-radius:12px;align-self:flex-start;transition:all 0.2s;text-transform:uppercase}
+.generate-btn:hover {background:var(--accent-light);transform:translateY(-1px)}
+.generate-btn:disabled {opacity:0.5;cursor:not-allowed}
+.error-banner {background:rgba(200,16,46,0.1);border:1px solid var(--accent);padding:14px 16px;border-radius:12px;font-size:13px;color:#ff9999;display:none;line-height:1.5}
+.input-sidebar {border-left:1px solid var(--border);padding:32px 24px;display:flex;flex-direction:column;gap:16px;background:rgba(255,255,255,0.01)}
+.sidebar-title {font-size:11px;letter-spacing:0.5px;text-transform:uppercase;color:var(--text-secondary);font-weight:600}
+.history-empty {font-size:13px;color:var(--text-secondary);line-height:1.6}
+.history-item {border:1px solid var(--border);border-radius:10px;padding:12px 13px;cursor:pointer;background:var(--surface);position:relative;transition:all 0.15s}
+.history-item:hover {background:var(--surface-hover);border-color:#3a3a3a}
+.history-client {font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px}
+.history-meta {font-size:11px;color:var(--text-secondary)}
+#screen-loading {align-items:center;justify-content:center;background:var(--bg);background-image:radial-gradient(ellipse at 50% 50%,rgba(200,16,46,0.04) 0%,transparent 70%)}
+.loading-inner {text-align:center}
+.loading-mark {font-family:'Bebas Neue',sans-serif;font-size:56px;letter-spacing:2px;color:var(--text);margin-bottom:12px}
+.loading-mark span {color:var(--accent)}
+.loading-text {font-size:14px;color:var(--text-secondary);letter-spacing:0.5px;margin-bottom:16px}
+.loading-spinner {width:40px;height:40px;margin:0 auto;border:2px solid rgba(255,255,255,0.1);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin {to {transform:rotate(360deg)}}
+#screen-flow {background:var(--bg);background-image:radial-gradient(ellipse at 80% 0%,rgba(200,16,46,0.04) 0%,transparent 60%)}
+.flow-header {padding:28px 44px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.flow-title-group {display:flex;align-items:baseline;gap:16px}
+.flow-client {font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--text);letter-spacing:1px}
+.flow-phase {font-size:11px;letter-spacing:1px;text-transform:uppercase;font-weight:600;padding:4px 8px;border-radius:6px;background:rgba(200,16,46,0.15)}
+.flow-nav {display:flex;gap:8px}
+.flow-btn {background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text-secondary);font-size:12px;padding:8px 14px;cursor:pointer;border-radius:10px;transition:all 0.15s;font-weight:500}
+.flow-btn:hover {background:rgba(255,255,255,0.08);border-color:#3a3a3a;color:var(--text)}
+.flow-btn.on {background:var(--accent);border-color:var(--accent);color:#fff}
+.flow-body {display:grid;grid-template-columns:1fr 280px;flex:1;gap:0}
+.flow-main {padding:32px 44px;overflow-y:auto;display:flex;flex-direction:column;gap:24px}
+.node-title {font-size:28px;font-weight:700;color:var(--text);margin-bottom:6px;line-height:1.2}
+.flow-step {font-size:11px;letter-spacing:0.5px;color:var(--text-secondary);text-transform:uppercase;font-weight:600}
+.script-card {border-left:4px solid;padding:20px;border-radius:12px;background:rgba(200,16,46,0.08)}
+.script-eye {font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;opacity:0.8}
+.script-body {font-size:16px;line-height:1.7;color:var(--text);font-style:italic}
+.why-toggle {background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text-secondary);padding:12px 16px;border-radius:10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;transition:all 0.15s}
+.why-toggle:hover {background:rgba(255,255,255,0.08);border-color:#3a3a3a}
+.why-box {margin-top:12px;padding:16px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;display:none}
+.why-box p {font-size:14px;line-height:1.7;color:var(--text-secondary)}
+.final-box {background:rgba(252,191,73,0.08);border-left:4px solid var(--yellow);padding:16px;border-radius:10px;margin-top:12px}
+.final-eye {font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--yellow);margin-bottom:8px}
+.final-body {font-size:14px;line-height:1.6;color:var(--text)}
+.opts-eye {font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-secondary);margin-top:24px;margin-bottom:12px}
+.opts-list {display:flex;flex-direction:column;gap:10px}
+.opt-btn {background:var(--surface);border:1px solid var(--border);color:var(--text);padding:14px 16px;border-radius:10px;cursor:pointer;display:flex;align-items:center;gap:12px;font-size:14px;font-weight:500;transition:all 0.15s}
+.opt-btn:hover {background:var(--surface-hover);border-color:#3a3a3a}
+.opt-num {display:flex;align-items:center;justify-content:center;width:24px;height:24px;background:rgba(200,16,46,0.15);border-radius:6px;font-weight:700;font-size:12px}
+.restart-btn {border:1px solid;background:transparent;padding:14px 16px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;transition:all 0.15s;text-transform:uppercase;letter-spacing:0.5px}
+.restart-btn:hover {opacity:0.8}
+.flow-sidebar {border-left:1px solid var(--border);padding:32px 24px;display:flex;flex-direction:column;gap:16px;background:rgba(255,255,255,0.01)}
+.data-panel {display:none}
+.data-row {display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px}
+.data-row:last-child {border:none}
+.data-label {color:var(--text-secondary);font-weight:500}
+.data-value {color:var(--text);font-weight:600}
+.back-node-btn {background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;cursor:pointer;font-size:12px;transition:all 0.15s;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+.back-node-btn:hover {background:rgba(255,255,255,0.08);border-color:#3a3a3a}
+#screen-settings {background:var(--bg)}
+.settings-panel {width:100%;max-width:500px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;margin:auto;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);box-shadow:0 20px 60px rgba(0,0,0,0.4)}
+.settings-header {font-size:24px;font-weight:700;margin-bottom:8px}
+.settings-desc {font-size:13px;color:var(--text-secondary);margin-bottom:24px}
+.settings-field {margin-bottom:20px}
+.settings-field label {display:block;font-size:12px;font-weight:600;letter-spacing:0.5px;margin-bottom:8px;text-transform:uppercase;color:var(--text-secondary)}
+.settings-field input {width:100%;padding:12px 14px;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;font-family:inherit;transition:all 0.15s}
+.settings-field input:focus {border-color:var(--accent);background:rgba(200,16,46,0.06);box-shadow:0 0 0 3px rgba(200,16,46,0.1)}
+.settings-buttons {display:flex;gap:12px;margin-top:28px}
+.settings-buttons button {flex:1;padding:12px;border-radius:10px;border:none;font-weight:600;cursor:pointer;text-transform:uppercase;letter-spacing:0.5px;font-size:12px;transition:all 0.15s}
+.btn-primary {background:var(--accent);color:#fff}
+.btn-primary:hover {background:var(--accent-light)}
+.btn-secondary {background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text)}
+.btn-secondary:hover {background:rgba(255,255,255,0.08);border-color:#3a3a3a}
+</style>
+</head>
+<body>
+
+<div class="screen active" id="screen-input">
+  <div class="input-header">
+    <div class="wordmark">JT<span>/CALL</span></div>
+    <div class="header-right">
+      <div style="display:flex;align-items:center;gap:6px">
+        <div class="api-dot" id="apiDot"></div>
+        <span class="api-label">API</span>
+      </div>
+      <button class="settings-btn" onclick="showSettings()">⚙ Settings</button>
+    </div>
+  </div>
+  <div class="input-body">
+    <div class="input-main">
+      <div class="error-banner" id="errBanner"></div>
+      <div>
+        <label class="field-label">Who are you talking to?</label>
+        <div class="client-row">
+          <input class="field-input" id="clientName" type="text" placeholder="Client/Sponsor name" />
+          <input class="field-input" id="contactName" type="text" placeholder="Contact person (optional)" />
+          <select class="field-input" id="callType">
+            <option>Call Type</option>
+            <option>Sponsorship</option>
+            <option>Negotiation</option>
+            <option>Pitch</option>
+            <option>Debrief</option>
+            <option>Check-in</option>
+          </select>
+        </div>
+      </div>
+      <div class="situation-wrap">
+        <label class="field-label">What's the situation?</label>
+        <textarea class="situation-textarea" id="situation" placeholder="Describe what you want from this call, any context, objections you expect, key goals... be specific."></textarea>
+      </div>
+      <div>
+        <label class="field-label">What are your numbers?</label>
+        <div class="numbers-row">
+          <div class="number-field">
+            <span class="number-prefix">$</span>
+            <input class="field-input has-prefix" id="askPrice" type="number" placeholder="Ask price" />
+          </div>
+          <div class="number-field">
+            <span class="number-prefix">$</span>
+            <input class="field-input has-prefix" id="targetPrice" type="number" placeholder="Target" />
+          </div>
+          <div class="number-field">
+            <span class="number-prefix">$</span>
+            <input class="field-input has-prefix" id="floorPrice" type="number" placeholder="Floor" />
+          </div>
+        </div>
+      </div>
+      <button class="generate-btn" id="genBtn" onclick="generate()">Build Flowchart</button>
+    </div>
+    <div class="input-sidebar">
+      <div>
+        <div class="sidebar-title">Recent Sessions</div>
+        <div id="historyList" style="display:flex;flex-direction:column;gap:8px">
+          <div class="history-empty">No sessions yet</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="screen-loading">
+  <div class="loading-inner">
+    <div class="loading-mark">JT<span>/CALL</span></div>
+    <div class="loading-text">Building your flowchart...</div>
+    <div class="loading-spinner"></div>
+  </div>
+</div>
+
+<div class="screen" id="screen-flow">
+  <div class="flow-header">
+    <div class="flow-title-group">
+      <div class="flow-client" id="flowClient">Call</div>
+      <div class="flow-phase" id="flowPhase">OPENING</div>
+    </div>
+    <div class="flow-nav">
+      <button class="flow-btn" id="dataBtnEl" onclick="toggleData()">📊 Data</button>
+      <button class="flow-btn" onclick="exportHTML()">↓ Export</button>
+      <button class="flow-btn" onclick="backToInput()">← Back</button>
+    </div>
+  </div>
+  <div class="flow-body">
+    <div class="flow-main" id="flowMain"></div>
+    <div class="flow-sidebar">
+      <div id="dataPanel" class="data-panel">
+        <div class="sidebar-title" style="margin-bottom:12px">Call Data</div>
+        <div id="dataGrid"></div>
+      </div>
+      <button class="back-node-btn" id="backNodeBtn" style="display:none" onclick="goBack()">← Previous</button>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="screen-settings" style="align-items:center;justify-content:center">
+  <div class="settings-panel">
+    <h2 class="settings-header">Settings</h2>
+    <p class="settings-desc">Get your API key free from console.anthropic.com</p>
+    <div class="settings-field">
+      <label>Anthropic API Key</label>
+      <input type="password" id="apiKeyInput" placeholder="sk-ant-..." />
+    </div>
+    <div class="settings-buttons">
+      <button class="btn-secondary" onclick="closeSettings()">Cancel</button>
+      <button class="btn-primary" onclick="saveApiKey()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const PC={OPENING:{bg:'rgba(59,130,246,0.08)',bd:'rgb(96,165,250)',tx:'rgb(96,165,250)'},LISTEN:{bg:'rgba(52,211,153,0.08)',bd:'rgb(52,211,153)',tx:'rgb(52,211,153)'},DEFLECT:{bg:'rgba(251,191,36,0.08)',bd:'rgb(251,191,36)',tx:'rgb(251,191,36)'},PRESENT:{bg:'rgba(59,130,246,0.08)',bd:'rgb(96,165,250)',tx:'rgb(96,165,250)'},NEGOTIATE:{bg:'rgba(251,191,36,0.08)',bd:'rgb(251,191,36)',tx:'rgb(251,191,36)'},CRITICAL:{bg:'rgba(239,68,68,0.08)',bd:'rgb(239,68,68)',tx:'rgb(239,68,68)'},CLOSE:{bg:'rgba(52,211,153,0.08)',bd:'rgb(52,211,153)',tx:'rgb(52,211,153)'},EXIT:{bg:'rgba(107,114,128,0.08)',bd:'rgb(107,114,128)',tx:'rgb(107,114,128)'}};
+let NODES={},sesh={},cur='start',hist=[],whyOpen=false,dataOpen=false,apiKey='';
+function showSettings(){document.getElementById('apiKeyInput').value=apiKey;showScreen('screen-settings')}
+function closeSettings(){showScreen('screen-input')}
+async function saveApiKey(){const k=document.getElementById('apiKeyInput').value.trim();if(!k){alert('Please paste your API key');return}apiKey=k;localStorage.setItem('jtcall_apikey',k);document.getElementById('apiDot').classList.add('ok');closeSettings()}
+async function generate(){const cn=document.getElementById('clientName').value.trim();if(!cn){alert('Please enter a client name');return}const sit=document.getElementById('situation').value.trim();if(!sit){alert('Please describe the situation');return}if(!apiKey){alert('Please set your API key in Settings');return}const msgs=[{role:'user',content:`You are an expert call strategist. Analyze this call scenario and build a detailed flowchart with nodes, scripts, psychology, and next steps.\n\nCLIENT: ${cn}\nSITUATION: ${sit}\nCONTACT: ${document.getElementById('contactName').value||'Unknown'}\nCALL TYPE: ${document.getElementById('callType').value}\n${document.getElementById('askPrice').value?'ASK: $'+document.getElementById('askPrice').value:''}\n${document.getElementById('targetPrice').value?'TARGET: $'+document.getElementById('targetPrice').value:''}\n${document.getElementById('floorPrice').value?'FLOOR: $'+document.getElementById('floorPrice').value:''}\n\nReturn ONLY valid JSON (no markdown, no backticks) with this exact structure:\n{\n  "nodes": {\n    "start": {\n      "title": "Opening",\n      "phase": "OPENING",\n      "script": "...",\n      "why": "...",\n      "options": [{"label": "...", "next": "listen"}],\n      "final": false,\n      "finalNote": null\n    }\n  }\n}`}];document.getElementById('genBtn').disabled=true;showScreen('screen-loading');hideErr();try{const r=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey},body:JSON.stringify({messages:msgs})});const d=await r.json();if(!r.ok){showErr(d.error||'Error');showScreen('screen-input');return}let txt=d.content?d.content[0].text:'';txt=txt.replace(/```json|```/g,'').trim();const parsed=JSON.parse(txt);NODES=parsed.nodes||{};sesh={clientName:cn,contactName:document.getElementById('contactName').value,callType:document.getElementById('callType').value,askPrice:document.getElementById('askPrice').value,targetPrice:document.getElementById('targetPrice').value,floorPrice:document.getElementById('floorPrice').value};saveSession();cur='start';hist=[];whyOpen=false;dataOpen=false;document.getElementById('flowClient').textContent=sesh.clientName||'Call';const dg=document.getElementById('dataGrid');const items=[];if(sesh.askPrice)items.push({l:'Ask',v:'$'+sesh.askPrice});if(sesh.targetPrice)items.push({l:'Target',v:'$'+sesh.targetPrice});if(sesh.floorPrice)items.push({l:'Floor',v:'$'+sesh.floorPrice});if(sesh.contactName)items.push({l:'Contact',v:sesh.contactName});dg.innerHTML=items.map(i=>`<div class="data-row"><span class="data-label">${i.l}</span><span class="data-value">${i.v}</span></div>`).join('');showScreen('screen-flow');renderFlow()}catch(e){showErr('Error: '+e.message)}finally{document.getElementById('genBtn').disabled=false}}
+function renderFlow(){const n=NODES[cur];if(!n){document.getElementById('flowMain').innerHTML='<p style="color:var(--text-secondary);font-size:13px">Node not found: '+cur+'</p>';return}const p=PC[n.phase]||PC.EXIT;document.getElementById('flowPhase').textContent=n.phase;document.getElementById('flowPhase').style.color=p.tx;let h='<div class="flow-step">Step '+(hist.length+1)+'</div>';h+='<div class="node-title">'+n.title+'</div>';h+='<div class="script-card" style="border-left-color:'+p.bd+';background:'+p.bg+'"><div class="script-eye" style="color:'+p.tx+'">SAY THIS</div><div class="script-body">\u201c'+n.script+'\u201d</div></div>';h+='<button class="why-toggle'+(whyOpen?' open':'')+'" onclick="tWhy()"><span>Psychology & strategy</span><span>'+(whyOpen?'\u2212':'+')+' </span></button>';if(whyOpen)h+='<div class="why-box" style="display:block"><p>'+n.why+'</p></div>';if(n.final&&n.finalNote)h+='<div class="final-box"><div class="final-eye">AFTER THE CALL</div><div class="final-body">'+n.finalNote+'</div></div>';if(n.options&&n.options.length){h+='<div class="opts-eye">WHAT DID THEY SAY?</div><div class="opts-list">';n.options.forEach((o,i)=>{h+='<button class="opt-btn" onclick="goTo(\''+o.next+'\')"><span class="opt-num" style="color:'+p.tx+'">'+(i+1)+'</span><span>'+o.label+'</span></button>';});h+='</div>'}else if(n.final){h+='<button class="restart-btn" style="background:'+p.bg+';border-color:'+p.bd+';color:'+p.tx+'" onclick="resetFlow()">Start Over</button>'}document.getElementById('flowMain').innerHTML=h;document.getElementById('flowMain').scrollTop=0}
+function goTo(id){if(!NODES[id])return;hist.push(cur);cur=id;whyOpen=false;renderFlow()}
+function goBack(){if(hist.length){cur=hist.pop();whyOpen=false;renderFlow()}}
+function resetFlow(){cur='start';hist=[];whyOpen=false;renderFlow()}
+function tWhy(){whyOpen=!whyOpen;renderFlow()}
+function toggleData(){dataOpen=!dataOpen;document.getElementById('dataPanel').style.display=dataOpen?'block':'none';document.getElementById('dataBtnEl').style.background=dataOpen?'rgba(200,16,46,0.15)':'rgba(255,255,255,0.05)'}
+function backToInput(){showScreen('screen-input')}
+function exportHTML(){const nj=JSON.stringify(NODES);const cn=sesh.clientName||'Call';const ap=sesh.askPrice||'';const tp=sesh.targetPrice||'';const fp=sesh.floorPrice||'';const blob=new Blob([`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>JT/CALL \u2014 ${cn}</title><style>*{margin:0;padding:0;box-sizing:border-box}body{min-height:100vh;background:#0a0a0a;color:#f5f5f5;font-family:-apple-system,system-ui,sans-serif;display:flex;flex-direction:column}header{padding:20px;border-bottom:1px solid #2a2a2a;display:flex;justify-content:space-between;align-items:center}h1{font-size:28px;font-weight:700}.phase{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#9ca3af;padding:4px 8px;background:rgba(200,16,46,0.15);border-radius:6px}#data{padding:16px 20px;background:#141414;border-bottom:1px solid #2a2a2a;display:none}main{flex:1;padding:32px 44px;overflow-y:auto}h2{font-size:24px;font-weight:700;margin-bottom:8px}.sc{border-left:4px solid;padding:16px;background:rgba(200,16,46,0.08);border-radius:10px;margin-bottom:20px}.se{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}.sb{font-size:15px;line-height:1.7;color:#f0f0f0;font-style:italic}.toggle{background:rgba(255,255,255,0.05);border:1px solid #2a2a2a;color:#9ca3af;padding:12px 16px;border-radius:10px;cursor:pointer;width:100%;text-align:left;display:flex;justify-content:space-between;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:16px}.box{background:rgba(255,255,255,0.03);border:1px solid #2a2a2a;padding:12px 16px;border-radius:10px;margin-bottom:16px;display:none}.box p{font-size:13px;line-height:1.6;color:#9ca3af}.final{background:rgba(251,191,36,0.08);border-left:4px solid #fbbf24;padding:16px;border-radius:10px;margin-bottom:20px}.final-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#fbbf24;margin-bottom:8px}.final-text{font-size:13px;line-height:1.6;color:#f0f0f0}.opts{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#9ca3af;margin-top:20px;margin-bottom:12px}.opt-list{display:flex;flex-direction:column;gap:10px}.opt{background:#141414;border:1px solid #2a2a2a;padding:14px 16px;border-radius:10px;cursor:pointer;display:flex;align-items:center;gap:12px;font-weight:500;transition:all 0.15s}.opt:hover{background:#1f1f1f}.num{display:flex;align-items:center;justify-content:center;width:24px;height:24px;background:rgba(200,16,46,0.15);border-radius:6px;font-weight:700;font-size:12px}.restart{background:rgba(255,255,255,0.05);border:1px solid #2a2a2a;color:#f5f5f5;padding:14px 16px;border-radius:10px;cursor:pointer;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;width:100%}footer{padding:16px 20px;border-top:1px solid #2a2a2a;background:#0a0a0a;display:flex;justify-content:space-between;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#9ca3af}</style></head><body><header><h1>JT/CALL \u2014 ${cn}</h1><button onclick="showData()" style="background:rgba(255,255,255,0.05);border:1px solid #2a2a2a;color:#9ca3af;padding:8px 14px;border-radius:10px;font-weight:600;cursor:pointer;text-transform:uppercase;letter-spacing:0.5px;font-size:12px">Data</button></header><div id="data"></div><main id="flow"></main><footer>Ask: <strong>${ap?'\$'+ap:'—'}</strong> | Target: ${tp?'\$'+tp:'—'} | Floor: ${fp?'\$'+fp:'—'}</footer><script>const N=${nj};const PC={OPENING:{bg:'rgba(59,130,246,0.08)',bd:'rgb(96,165,250)',tx:'rgb(96,165,250)'},LISTEN:{bg:'rgba(52,211,153,0.08)',bd:'rgb(52,211,153)',tx:'rgb(52,211,153)'},DEFLECT:{bg:'rgba(251,191,36,0.08)',bd:'rgb(251,191,36)',tx:'rgb(251,191,36)'},PRESENT:{bg:'rgba(59,130,246,0.08)',bd:'rgb(96,165,250)',tx:'rgb(96,165,250)'},NEGOTIATE:{bg:'rgba(251,191,36,0.08)',bd:'rgb(251,191,36)',tx:'rgb(251,191,36)'},CRITICAL:{bg:'rgba(239,68,68,0.08)',bd:'rgb(239,68,68)',tx:'rgb(239,68,68)'},CLOSE:{bg:'rgba(52,211,153,0.08)',bd:'rgb(52,211,153)',tx:'rgb(52,211,153)'},EXIT:{bg:'rgba(107,114,128,0.08)',bd:'rgb(107,114,128)',tx:'rgb(107,114,128)'}};let c='start',h=[],w=0;function render(){const n=N[c];if(!n)return;const p=PC[n.phase]||PC.EXIT;let x='<h2>'+n.title+'</h2>';x+='<div class="sc" style="border-left-color:'+p.bd+';background:'+p.bg+'"><div class="se" style="color:'+p.tx+'">SAY THIS</div><div class="sb">\u201c'+n.script+'\u201d</div></div>';x+='<button class="toggle" onclick="w=!w;render()"><span>Psychology & strategy</span><span>'+(w?'\u2212':'+')+' </span></button>';if(w)x+='<div class="box" style="display:block"><p>'+n.why+'</p></div>';if(n.final&&n.finalNote)x+='<div class="final"><div class="final-title">AFTER THE CALL</div><div class="final-text">'+n.finalNote+'</div></div>';if(n.options&&n.options.length){x+='<div class="opts">WHAT DID THEY SAY?</div><div class="opt-list">';n.options.forEach((o,i)=>{x+='<button class="opt" onclick="h.push(c);c=\\''+o.next+'\\';render()"><span class="num" style="color:'+p.tx+'">'+(i+1)+'</span><span>'+o.label+'</span></button>';});x+='</div>'}else if(n.final)x+='<button class="restart" onclick="c=\\'start\\';h=[];w=0;render()">Start Over</button>';document.getElementById('flow').innerHTML=x;document.getElementById('flow').scrollTop=0}function showData(){const d=document.getElementById('data');d.style.display=d.style.display==='none'?'block':'none'}render();<\/script></body></html>`],{type:'text/html'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='jtcall-'+cn.toLowerCase().replace(/\s+/g,'-')+'.html';a.click()}
+function saveSession(){const sessions=JSON.parse(localStorage.getItem('jtcall_sessions')||'[]');sessions.unshift({clientName:sesh.clientName,timestamp:new Date().toLocaleString()});localStorage.setItem('jtcall_sessions',JSON.stringify(sessions.slice(0,5)));loadHistory()}
+function loadHistory(){const sessions=JSON.parse(localStorage.getItem('jtcall_sessions')||'[]');const list=document.getElementById('historyList');if(sessions.length===0){list.innerHTML='<div class="history-empty">No sessions yet</div>';return}list.innerHTML=sessions.map((s,i)=>`<div class="history-item"><div class="history-client">${s.clientName}</div><div class="history-meta">${s.timestamp}</div></div>`).join('')}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
+function hideErr(){document.getElementById('errBanner').style.display='none'}
+function showErr(m){document.getElementById('errBanner').textContent=m;document.getElementById('errBanner').style.display='block'}
+apiKey=localStorage.getItem('jtcall_apikey')||'';
+if(apiKey)document.getElementById('apiDot').classList.add('ok');
+loadHistory();
+</script>
+</body>
+</html>
